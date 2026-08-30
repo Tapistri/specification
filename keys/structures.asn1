@@ -1,0 +1,107 @@
+Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+    -- primatives
+
+    -- seconds from unix epoch 1-1-1970 @ 00:00:00 UTC
+    UTCTimestamp ::= INTEGER (0..18446744073709551615)
+
+    SignatureAlgorithm ::= ENUMERATED {
+        sFNDSA512(0),
+        ...
+    }
+
+    DigestAlgorithm ::= ENUMERATED {
+        dSHA256(0),
+        ...
+    }
+
+    KeyExchangeAlgorithm ::= ENUMERATED {
+        kxMLLEM768(0),
+        ...
+    }
+
+    Signature ::= SEQUENCE {
+        algorithm SignatureAlgorithm,
+        signatureValue OCTET STRING
+    }
+
+    Digest ::= SEQUENCE {
+        algorithm DigestAlgorithm,
+        digestValue OCTET STRING
+    }
+
+    ValidityPeriod ::= SEQUENCE {
+        notBefore UTCTimestamp,
+        notAfter UTCTimestamp
+    }
+
+    -- records (certificate payloads)
+
+    InstanceAttestationRecord ::= SEQUENCE {
+        identityFingerprint Digest,
+        instanceKeyFingerprint Digest,
+        proxyKeyFingerprint Digest,
+        proxyKeyValidityPeriod ValidityPeriod
+    }
+
+    HistoricalKeyRecord ::= SEQUENCE {
+        publicKey OCTET STRING,
+        serialNumber INTEGER, -- position of the key in the keychain, starting at 0 for the first key
+        validityPeriod ValidityPeriod
+    }
+
+    HistoricalKeyRevocationRecord ::= SEQUENCE {
+        revokedKeyFingerprint Digest,
+        revokedKeySerialNumber INTEGER, -- position of the revoked key
+        serialNumber INTEGER, -- position of the record in the keychain
+        revocationTime UTCTimestamp
+    }
+
+    IdentityRecord ::= SEQUENCE {
+        publicKey OCTET STRING,
+        publicKeyAlgorithm SignatureAlgorithm,
+        publicKeyFingerprint Digest
+    }
+
+    -- certificates (signed records)
+
+    -- self-signed
+    IdentityCertificate ::= SEQUENCE {
+        tbsIdentity IdentityRecord,
+        signature Signature
+    }
+
+    HistoricalKeyRevocationCertificate ::= SEQUENCE {
+        tbsRevocation HistoricalKeyRevocationRecord,
+        identitySignature Signature
+    }
+
+    HistoricalKeyCertificate ::= SEQUENCE {
+        tbsHistoricalKey HistoricalKeyRecord,
+        signature Signature
+    }
+
+    InstanceAttestationCertificate ::= SEQUENCE {
+        tbsInstanceAttestation InstanceAttestationRecord,
+        instanceSignature Signature,
+        proxySignature Signature
+    }
+
+    -- keychains
+    HistoricalKeyChain ::= SEQUENCE {
+        -- this record is signed by the identity key, and establishes the keychain for a given identity
+        tbskeychainIdentifer SEQUENCE {
+            instanceIdentityFingerprint Digest,
+            clientIdentityFingerprint Digest
+        },
+        clientIdentitySignature Signature,
+        instanceSignature Signature,
+
+        clientIdentity IdentityCertificate,
+
+        history SEQUENCE OF CHOICE {
+            historicalKey HistoricalKeyCertificate,
+            revocationRecord HistoricalKeyRevocationCertificate
+        }
+    }
+
+END
