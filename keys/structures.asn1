@@ -90,14 +90,13 @@ Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     IdentityKeychainCertificate ::= SEQUENCE {
         -- this record is signed by the identity key, and establishes the keychain for a given identity
         tbskeychainIdentifer SEQUENCE {
+            clientIdentity IdentityCertificate,
+            homeserverIdentity IdentityCertificate,
             instanceIdentityFingerprint Digest,
             clientIdentityFingerprint Digest
         },
         clientIdentitySignature Signature,
         instanceSignature Signature,
-
-        clientIdentity IdentityCertificate,
-        homeserverIdentity IdentityCertificate,
 
         history SEQUENCE OF CHOICE {
             historicalKey HistoricalKeyCertificate,
