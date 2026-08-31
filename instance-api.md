@@ -1,0 +1,119 @@
+
+    types:
+        base64 - string representing octets encoded in [urlsafe-base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5)
+
+/api/v1
+    /instance
+        /keys
+            GET
+                get the instance's IKR
+            :RESPONSES
+                200 OK
+
+    /user/<id:base64>
+        parameters:
+            id - encoded key fingerprint. 
+                A user can be referred to by any key in their IKR in the instance.
+
+        /keys
+            GET
+                returns the user's identity keychain
+            :REQ-HEADERS
+                Accept: <content-type>
+                - possible values:
+                    - application/json;version=<version>
+                    - application/vnd.thimble.identitykeychain+octet-stream;version=<version>
+                - if the version field is omitted, the latest version will be returned
+                If-Modified-Since: <timestamp>
+                -   reply with 304 if no changes to the keychain have been made since the given timestamp
+            :RESPONSES
+                200 OK
+                304 Not Modified
+                404 Not Found
+
+        /activity
+            GET
+                get the current activity of the user
+
+        /private-key-backup
+            idk
+
+        /report
+                
+    /me
+        /keys
+            POST
+                add a new key
+            :REQ-HEADERS
+                Content-Type: application/vnd.thimble.key+octet-stream
+
+            :RE
+
+        /activity
+            POST
+                update the current activity of the user
+
+    /room/<room_id:base64>
+        parameters:
+            id - random integer identifying a room on the instance.
+
+        /messages
+            POST
+                send a new message to the room
+
+        /messages?after=<message_id:base64>&before=<message_id:base64>
+            required: after and/or before
+
+            GET
+                get a list of messages within a timeframe
+            :REQ-HEADERS
+                see 
+
+        /messages/<message_id:base64>
+            GET
+                get the contents of a message
+            :REQ-HEADERS
+                Accept: <content-type>
+                - possible values:
+                    - application/json;version=<version>
+                    - application/vnd.thimble.message+octet-stream;version=<version>
+                - if the version field is omitted, the latest version will be returned
+                If-Modified-Since: <timestamp>
+                -   reply with 304 if the message hasn't been edited
+                
+            :RESPONSES
+                200 OK
+                304 Not Modified
+                404 Not Found
+
+            :RES-HEADERS
+                X-Content-Type-Options: nosniff
+
+            
+
+            PATCH
+                edit a message
+                    message edit history?????
+        
+        /blocks
+            ...
+
+        /recipients
+            GET
+                get a list of recipients in the room
+
+        /events
+            GET
+                subscribe to a websocket of room events
+                - message send events
+                - message edit events
+                - metadata edit events
+                - user started new message block
+                - user activity
+                - etc.
+
+            NOTE: although, it might make more sense to have instances automatically send these events to the homeservers of the room members for e.g. notifications, in addition to supporting the "polling" (wrong term but) style
+
+    /auth
+        /challenge
+            res
