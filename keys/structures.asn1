@@ -1,21 +1,21 @@
 Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     -- primatives
 
-    -- seconds from unix epoch 1-1-1970 @ 00:00:00 UTC
+    -- milliseconds from unix epoch 1-1-1970 @ 00:00:00 UTC
     UTCTimestamp ::= INTEGER (0..18446744073709551615)
 
     SignatureAlgorithm ::= ENUMERATED {
-        sFNDSA512(0),
+        sFNDSA512draft,
         ...
     }
 
     DigestAlgorithm ::= ENUMERATED {
-        dSHA256(0),
+        dSHA256,
         ...
     }
 
     KeyExchangeAlgorithm ::= ENUMERATED {
-        kxMLLEM768(0),
+        kxMLKEM768,
         ...
     }
 
@@ -34,6 +34,12 @@ Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
         notAfter UTCTimestamp
     }
 
+    SigningKey ::= SEQUENCE {
+        publicKey OCTET STRING,
+        publicKeyAlgorithm SignatureAlgorithm,
+        publicKeyFingerprint Digest
+    }
+
     -- records (certificate payloads)
 
     InstanceAttestationRecord ::= SEQUENCE {
@@ -44,7 +50,7 @@ Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     }
 
     HistoricalKeyRecord ::= SEQUENCE {
-        publicKey OCTET STRING,
+        publicKey SigningKey,
         serialNumber INTEGER, -- position of the key in the keychain, starting at 0 for the first key
         validityPeriod ValidityPeriod
     }
@@ -56,17 +62,11 @@ Tapistri DEFINITIONS AUTOMATIC TAGS ::= BEGIN
         revocationTime UTCTimestamp
     }
 
-    IdentityRecord ::= SEQUENCE {
-        publicKey OCTET STRING,
-        publicKeyAlgorithm SignatureAlgorithm,
-        publicKeyFingerprint Digest
-    }
-
     -- certificates (signed records)
 
     -- self-signed
     IdentityCertificate ::= SEQUENCE {
-        tbsIdentity IdentityRecord,
+        tbsIdentity SigningKey,
         signature Signature
     }
 
