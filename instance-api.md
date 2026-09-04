@@ -1,3 +1,33 @@
+NOTES:
+    For most generic endpoints, the Accept: should be used to decide what content type to return. 
+    If the Accept header is not present, the default will be application/json;version=1.0, 
+    unless the endpoint is specifically for a binary type, in which case the default will be the binary type.
+    Example:
+        GET /api/v1/health HTTP/1.1
+        Host: instance.example.coom
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+
+        HTTP/1.1 200 OK
+        Content-Type: text/html
+        <html>
+            <p>
+                Instance is OK
+            </p>
+        </html>
+    
+    versus
+        GET /api/v1/health HTTP/1.1
+        Host: instance.example.coom
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        {
+            "status": "ok"
+        }
+
+
+    
+
 
 types:
     base64 - string representing octets encoded in [urlsafe-base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5)
@@ -9,9 +39,14 @@ mime:
             identity-certificate+octet-stream - a serialized IdentityCertificate
             key+octet-stream - a serialized IdentityKey
             message+octet-stream - a serialized Message
-        
 
 /api/v1
+    /health
+        GET
+            get the health of the instance
+        :RESPONSES
+            200 OK
+
     /instance
         /keys
             GET
@@ -25,7 +60,6 @@ mime:
                 Content-Type: application/vnd.thimble.challenge+octet-stream
             :RESPONSES
                 200 OK
-
                 411 Length Required
                 413 Content Too Large
                 - The instance may reject challenges requesting 
@@ -76,7 +110,7 @@ mime:
                     - at least one key in the keychain, with the
                         first key signed by the client's identity key
             :RESPONSES
-                200 OK
+                201 Created
                 409 Conflict
                     - The clientIdentityFingerprint is already registered with the instance
                 422 Unprocessable Entity
@@ -92,7 +126,11 @@ mime:
             :REQ-HEADERS
                 Content-Type: application/vnd.thimble.key+octet-stream
             :RESPONSES
-
+                201 Created
+                409 Conflict
+                    - The key is already registered with the instance
+                422 Unprocessable Entity
+                    - The key was unable to be verified, or the key was missing required fields
         /activity
             POST
                 update the current activity of the user

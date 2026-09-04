@@ -12,12 +12,12 @@ Fingerprints:   SHA-1 (160-bit / 20 byte)
 With the decentralized nature of Tapistri, chains of trust are formed through transparency and having a longstanding
 and reputable account on multiple instances, with instances attesting to an entity's identity. The trust of an entity can
 be visualized as a hub and spoke, where the hub is the entities Identity Key, being attested to by Instance Attestation 
-ertificates and Historical Key Records.
+ertificates and Identity Keychains
 
 ### [Identity Key](./recovery.md)
 
 The identity key establishes the root of trust for an user, and is only used in one of the following cases:
-- Client is starting a new chain of HKRs on an instance
+- Client is starting a new Identity Keychain s on an instance
 - Client is requesting an instance to revoke a set of keys
 - Client needs to indisputably attest their identity
 
@@ -37,6 +37,9 @@ Historical Key Records consist of three components:
 - The validity period of the key (the time the key activates and expires)
 
 These form a chain of keys that prove that the current key has a connection to the original key used on the account.
+
+### [Identity Keychains (IKCs)](./recovery.md)
+Contain the HKR, and a keychain Identifier mutually signed by the instance and the client.
 
 ### Instance Attestation Certificates (IACs)
 
